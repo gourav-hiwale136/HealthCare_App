@@ -19,12 +19,12 @@ const paymentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "completed", "failed", "refunded"],
-      default: "pending",
+      enum: ["Pending", "Completed", "Failed", "Refunded"],
+      default: "Pending",
     },
     paymentMethod: {
       type: String,
-      enum: ["card", "upi", "wallet", "netbanking", "cash"], // add others if needed
+      enum: ["Card", "UPI", "Wallet", "Net Banking", "Cash"], // add others if needed
       required: true,
     },
     transactionId: {
