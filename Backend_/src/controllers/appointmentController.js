@@ -3,9 +3,7 @@ import Appointment from "../models/appointmentModel.js";
 import Patient from "../models/patientModel.js";
 import Doctor from "../models/doctorModel.js";
 
-// ---------------------------
-// 1️⃣ Book Appointment (Full Payment Mandatory)
-// ---------------------------
+
 const bookAppointment = async (req, res) => {
   try {
     const { doctorId, date, time, notes, paidAmount } = req.body;
@@ -63,9 +61,7 @@ const bookAppointment = async (req, res) => {
   }
 };
 
-// ---------------------------
-// 2️⃣ Get All Appointments of Logged-in Patient
-// ---------------------------
+
 const getMyAppointments = async (req, res) => {
   try {
     const patient = await Patient.findOne({ userId: req.user._id });
@@ -81,9 +77,7 @@ const getMyAppointments = async (req, res) => {
   }
 };
 
-// ---------------------------
-// 3️⃣ Get All Appointments of Logged-in Doctor
-// ---------------------------
+
 const getDoctorAppointments = async (req, res) => {
   try {
     const doctor = await Doctor.findOne({ userId: req.user._id });
@@ -99,9 +93,7 @@ const getDoctorAppointments = async (req, res) => {
   }
 };
 
-// ---------------------------
-// 4️⃣ Update Appointment Status (Doctor Only)
-// ---------------------------
+
 const updateAppointmentStatus = async (req, res) => {
   try {
     const { status, cancellationReason } = req.body;
@@ -127,9 +119,7 @@ const updateAppointmentStatus = async (req, res) => {
   }
 };
 
-// ---------------------------
-// 5️⃣ Patient Cancels Appointment
-// ---------------------------
+
 const cancelAppointmentByPatient = async (req, res) => {
   try {
     const patient = await Patient.findOne({ userId: req.user._id });
@@ -148,9 +138,7 @@ const cancelAppointmentByPatient = async (req, res) => {
   }
 };
 
-// ---------------------------
-// 6️⃣ Update Payment (Optional - rarely used, payment should already be full)
-// ---------------------------
+
 const updatePaymentStatus = async (req, res) => {
   try {
     const { amount } = req.body;

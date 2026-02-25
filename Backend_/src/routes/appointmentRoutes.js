@@ -21,7 +21,7 @@ appointmentRouter.patch("/cancel/:id", authMiddleware, allowRoles("patient"), ca
 // Doctor
 appointmentRouter.get("/doctor", authMiddleware, allowRoles("doctor"), getDoctorAppointments);
 appointmentRouter.patch("/status/:id", authMiddleware, allowRoles("doctor"), updateAppointmentStatus);
-appointmentRouter.put("/payment/:id", authMiddleware, allowRoles("doctor"), updatePaymentStatus);
+appointmentRouter.put("/payment/:id", authMiddleware,  updatePaymentStatus);
   
 
 export default appointmentRouter;
