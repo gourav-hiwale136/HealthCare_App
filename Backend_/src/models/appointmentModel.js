@@ -1,3 +1,4 @@
+// models/appointmentModel.js
 import mongoose from "mongoose";
 
 const appointmentSchema = new mongoose.Schema(
@@ -14,15 +15,18 @@ const appointmentSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Human-readable date and time
-    date: {
-      type: String, // "YYYY-MM-DD"
+    // Exact date + time for DB logic
+    appointmentDate: {
+      type: Date,
       required: true,
     },
 
-    time: {
+    // Human-readable date/time for UI
+    readableDate: {
+      type: String, // "YYYY-MM-DD"
+    },
+    readableTime: {
       type: String, // "10:00 AM"
-      required: true,
     },
 
     notes: {
@@ -38,7 +42,7 @@ const appointmentSchema = new mongoose.Schema(
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "partial", "paid", "failed"],
+      enum: ["pending", "paid"], // only two states now
       default: "pending",
     },
 
@@ -55,11 +59,9 @@ const appointmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Prevent double booking for same doctor at same date + time
-appointmentSchema.index(
-  { doctorId: 1, date: 1, time: 1 },
-  { unique: true }
-);
+// Prevent double booking for same doctor at same appointmentDate
+appointmentSchema.index({ doctorId: 1, appointmentDate: 1 }, { unique: true });
 
 const Appointment = mongoose.model("Appointment", appointmentSchema);
+
 export default Appointment;
