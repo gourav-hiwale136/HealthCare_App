@@ -34,6 +34,10 @@ const patientSchema = new mongoose.Schema(
       type: [String], 
       default: [],
     },
+    treatmentNotes: {
+      type: [String], 
+      default: [],
+    },
     emergencyContact: {
       name: { type: String, required: true },
       relation: { type: String, required: true },

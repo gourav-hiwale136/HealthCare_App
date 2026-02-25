@@ -1,13 +1,20 @@
 import Patient from "../models/patientModel.js";
 
 
+const roleFields = {
+  patient: ["name", "age", "phone", "emergencyContact"],
+  doctor: ["allergies", "medicalHistory", "treatmentNotes"],
+  admin: ["name", "phone", "emergencyContact", "bloodGroup"]
+};
+
+
 const createPatientProfile = async (req, res) => {
   try {
     if (!req.user || !req.user._id) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { name, age, gender, bloodGroup, allergies = [], medicalHistory = [], emergencyContact = {} } = req.body;
+    const { name, age, gender, bloodGroup, allergies = [], medicalHistory = [], treatmentNotes = {}, emergencyContact = {} } = req.body;
 
     if (!name || !age || !gender || !bloodGroup) {
       return res.status(400).json({ error: "Name, age, gender, and blood group are required" });
@@ -30,6 +37,7 @@ const createPatientProfile = async (req, res) => {
       bloodGroup,
       allergies,
       medicalHistory,
+      treatmentNotes,
       emergencyContact,
     });
 
@@ -80,19 +88,6 @@ const getPatientById = async (req, res) => {
 };
 
 
-const getPatientByUserId = async (req, res) => {
-  try {
-    const patient = await Patient.findOne({ userId: req.user._id });
-    if (!patient) return res.status(404).json({ error: "Patient profile not found" });
-
-    res.status(200).json(patient);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-
 const getMyPatientProfile = async (req, res) => {
   try {
     // Find the patient by the logged-in user's ID
@@ -112,13 +107,10 @@ const getMyPatientProfile = async (req, res) => {
 
 const updateMyPatientProfile = async (req, res) => {
   try {
-    // Find patient by logged-in user
     const patient = await Patient.findOne({ userId: req.user._id });
     if (!patient) return res.status(404).json({ error: "Patient profile not found" });
 
-    // Allowed fields for patients to update
-    const allowedFields = ["name", "age", "phone", "emergencyContact"];
-
+    const allowedFields = roleFields["patient"];
     allowedFields.forEach(field => {
       if (req.body[field] !== undefined) patient[field] = req.body[field];
     });
@@ -139,31 +131,24 @@ const updateMyPatientProfile = async (req, res) => {
 const updatePatientProfile = async (req, res) => {
   try {
     let patient;
+
     if (req.user.role === "patient") {
       // Patient updates their own profile
       patient = await Patient.findOne({ userId: req.user._id });
       if (!patient) return res.status(404).json({ error: "Patient profile not found" });
 
-    } else if (req.user.role === "doctor" || req.user.role === "admin") {
-      // Doctor/Admin updates a patient by ID
+    } else if (["doctor", "admin"].includes(req.user.role)) {
       const { id } = req.params;
       if (!id) return res.status(400).json({ error: "Patient ID is required" });
 
       patient = await Patient.findById(id);
       if (!patient) return res.status(404).json({ error: "Patient not found" });
+
     } else {
       return res.status(403).json({ error: "Forbidden" });
     }
 
-    let allowedFields = [];
-    if (req.user.role === "patient") {
-      allowedFields = ["name", "age", "phone", "emergencyContact"];
-    } else if (req.user.role === "doctor") {
-      allowedFields = ["allergies", "medicalHistory", "treatmentNotes"];
-    } else if (req.user.role === "admin") {
-      allowedFields = ["name", "phone", "emergencyContact", "bloodGroup"];
-    }
-
+    const allowedFields = roleFields[req.user.role] || [];
     allowedFields.forEach(field => {
       if (req.body[field] !== undefined) {
         patient[field] = req.body[field];
@@ -178,7 +163,7 @@ const updatePatientProfile = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Error updating patient profile:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -188,12 +173,10 @@ const deletePatientProfile = async (req, res) => {
   try {
     const patient = await Patient.findById(req.params.id);
     if (!patient) return res.status(404).json({ error: "Patient not found" });
-
-    if (req.user.role !== "admin" && req.user._id.toString() !== patient.userId.toString()) {
+    if (req.user.role !== "admin") {
       return res.status(403).json({ error: "Forbidden" });
     }
-
-    await patient.remove();
+    await patient.deleteOne(); 
     res.status(200).json({ message: "Patient profile deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -210,14 +193,11 @@ const addMedicalRecord = async (req, res) => {
     const patient = await Patient.findById(req.params.id);
     if (!patient) return res.status(404).json({ error: "Patient not found" });
 
-    // Only admin or patient themselves
-    if (req.user.role !== "admin" && req.user._id.toString() !== patient.userId.toString()) {
+    if (!["admin", "doctor"].includes(req.user.role)) {
       return res.status(403).json({ error: "Forbidden" });
     }
-
     patient.medicalHistory.push(record);
     await patient.save();
-
     res.status(200).json({ message: "Medical record added", patient });
   } catch (error) {
     console.error(error);
@@ -230,7 +210,6 @@ export {
   getAllPatients,
   getPatientById,
   getMyPatientProfile,
-  getPatientByUserId,
   updateMyPatientProfile,
   updatePatientProfile,
   deletePatientProfile,
