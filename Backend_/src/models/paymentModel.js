@@ -1,3 +1,4 @@
+// models/paymentModel.js
 import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
@@ -6,34 +7,49 @@ const paymentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Appointment",
       required: true,
+      index: true,
     },
+
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // or Patient model if you have one
+      ref: "User",
       required: true,
     },
+
     amount: {
       type: Number,
       required: true,
       min: 0,
     },
-    status: {
-      type: String,
-      enum: ["Pending", "Completed", "Failed", "Refunded"],
-      default: "Pending",
-    },
+
     paymentMethod: {
       type: String,
-      enum: ["Card", "UPI", "Wallet", "Net Banking", "Cash"], // add others if needed
+      enum: ["card", "upi", "wallet", "net_banking", "cash"],
       required: true,
     },
+
+    status: {
+      type: String,
+      enum: ["pending", "completed", "failed", "refunded"],
+      default: "pending",
+    },
+
     transactionId: {
       type: String,
       required: true,
       unique: true,
     },
+
+    gatewayResponse: {
+      type: Object, // store raw payment gateway response
+    },
+
+    refundReason: {
+      type: String,
+      trim: true,
+    },
   },
-  { timestamps: true }, // adds createdAt and updatedAt automatically
+  { timestamps: true }
 );
 
 const Payment = mongoose.model("Payment", paymentSchema);

@@ -1,5 +1,6 @@
 import express from "express";
-import { loginUser, registerUser } from "../controllers/authController.js";
+import { loginUser, registerUser, updateCredentials } from "../controllers/authController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 
 
@@ -9,5 +10,6 @@ authRoutes.post("/register", registerUser);
 
 authRoutes.post("/login", loginUser);
 
+authRoutes.put("/updateCredentials", authMiddleware, updateCredentials);
 
 export default authRoutes;

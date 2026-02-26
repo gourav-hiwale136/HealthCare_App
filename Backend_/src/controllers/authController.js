@@ -36,11 +36,11 @@ const loginUser = async (req, res) => {
         }
 
         const token = jwt.sign(
-        { id: user._id },
+        { id: user._id.toString() },
          process.env.JWT_SECRET,
         { expiresIn: "7d" }
     );
-
+    //    await user.save();
         res.status(200).json({ message: "Login successful", user, token });
 
     } catch (error) {
@@ -49,6 +49,46 @@ const loginUser = async (req, res) => {
 };
 
 
+const updateCredentials = async (req, res) => {
+  try {
+    const userId = req.user._id.toString(); // from authMiddleware
+    const { username, email, phone, password } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Update fields if provided
+    if (username) user.username = username;
+
+    if (email) {
+      // Check if new email is already taken by another user
+      const emailExists = await User.findOne({ email });
+      if (emailExists && emailExists._id.toString() !== userId) {
+        return res.status(400).json({ success: false, message: "Email already in use" });
+      }
+      user.email = email;
+    }
+
+    if (phone) user.phone = phone;
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+
+    await user.save();
+
+    // Return user without password
+    const userResponse = (({ _id, username, email, phone, role }) => ({ _id, username, email, phone, role }))(user);
+
+    res.status(200).json({ success: true, message: "Credentials updated successfully", user: userResponse });
+  } catch (error) {
+    console.error("Update Credentials Error:", error.message);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
 
 
-export { registerUser, loginUser };
+export { registerUser, loginUser, updateCredentials };

@@ -13,12 +13,7 @@ const createDoctorProfile = async (req, res) => {
 
     const {specialization,experienceYears,hospitalName,consultationFee,} = req.body;
 
-    if (
-      !specialization ||
-      experienceYears === undefined ||
-      !hospitalName ||
-      consultationFee === undefined
-    ) {
+    if (!specialization || experienceYears === undefined || !hospitalName || consultationFee === undefined){
       return res.status(400).json({
         success: false,
         message: "All fields are required",

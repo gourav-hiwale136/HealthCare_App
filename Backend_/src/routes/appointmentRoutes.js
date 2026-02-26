@@ -5,7 +5,6 @@ import {
   getDoctorAppointments,
   updateAppointmentStatus,
   cancelAppointmentByPatient,
-  updatePaymentStatus,
 } from "../controllers/appointmentController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -15,13 +14,13 @@ const appointmentRouter = express.Router();
 
 // Patient
 appointmentRouter.post("/book", authMiddleware, allowRoles("patient"), bookAppointment);
-appointmentRouter.get("/my", authMiddleware, allowRoles("patient"), getMyAppointments);
+appointmentRouter.get("/myAppointment", authMiddleware, allowRoles("patient"), getMyAppointments);
 appointmentRouter.patch("/cancel/:id", authMiddleware, allowRoles("patient"), cancelAppointmentByPatient);
 
 // Doctor
 appointmentRouter.get("/doctor", authMiddleware, allowRoles("doctor"), getDoctorAppointments);
 appointmentRouter.patch("/status/:id", authMiddleware, allowRoles("doctor"), updateAppointmentStatus);
-appointmentRouter.put("/payment/:id", authMiddleware,  updatePaymentStatus);
+
   
 
 export default appointmentRouter;
