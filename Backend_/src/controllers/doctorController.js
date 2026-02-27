@@ -1,4 +1,5 @@
 import Doctor from "../models/doctorModel.js";
+import Appointment from "../models/appointmentModel.js";
 import mongoose from "mongoose";
 
 
@@ -280,6 +281,89 @@ const doctorDeactivate = async (req, res) => {
   }
 };
 
+
+/**
+ * Doctor Dashboard
+ * Shows total appointments, today's appointments, completed/cancelled counts, and total revenue
+ */
+const getDoctorDashboard = async (req, res) => {
+  try {
+    // Convert doctorId to ObjectId for strict MongoDB matching
+    const doctorId = new mongoose.Types.ObjectId(req.user._id);
+
+    // Today's date range in server timezone
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // Total appointments for this doctor
+    const totalAppointments = await Appointment.countDocuments({ doctorId });
+
+    // Today's appointments
+    const todayAppointments = await Appointment.countDocuments({
+      doctorId,
+      appointmentDateTime: { $gte: todayStart, $lte: todayEnd },
+    });
+
+    const confirmedAppointments = await Appointment.countDocuments({
+      doctorId,
+      status: "confirmed",
+    });
+
+    // Completed appointments
+    const completedAppointments = await Appointment.countDocuments({
+      doctorId,
+      status: "completed",
+    });
+
+    // Cancelled appointments
+    const cancelledAppointments = await Appointment.countDocuments({
+      doctorId,
+      status: "cancelled",
+    });
+
+    // Total revenue (sum of paidAmount for fully paid appointments)
+    const revenueData = await Appointment.aggregate([
+      {
+        $match: {
+          doctorId,
+          paymentStatus: "paid",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$paidAmount" },
+        },
+      },
+    ]);
+
+    const totalRevenue =
+      revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
+
+    res.json({
+      success: true,
+      dashboard: {
+        totalAppointments,
+        todayAppointments,
+        confirmedAppointments,
+        completedAppointments,
+        cancelledAppointments,
+        totalRevenue,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
 export {
   createDoctorProfile,
   getMyDoctorProfile,
@@ -290,4 +374,5 @@ export {
   approveDoctor,
   suspendDoctor,
   getPendingDoctors,
+  getDoctorDashboard, 
 };

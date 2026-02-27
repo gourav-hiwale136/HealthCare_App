@@ -1,31 +1,36 @@
-// models/appointmentModel.js
 import mongoose from "mongoose";
 
 const appointmentSchema = new mongoose.Schema(
   {
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // keep consistent
+      ref: "User",
       required: true,
+      index: true,
     },
 
     doctorId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // assuming doctor is also User
+      ref: "User",
       required: true,
+      index: true,
     },
 
-    appointmentDate: {
+    appointmentDateTime: {
       type: Date,
       required: true,
+      validate: {
+        validator: function (value) {
+          return value > new Date();
+        },
+        message: "Appointment must be scheduled in the future",
+      },
     },
 
-    readableDate: {
-      type: String,
-    },
-
-    readableTime: {
-      type: String,
+    durationMinutes: {
+      type: Number,
+      default: 30,
+      min: 5,
     },
 
     consultationFee: {
@@ -48,16 +53,26 @@ const appointmentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "confirmed", "completed", "cancelled"],
-      default: "pending",
+      enum: [
+        "scheduled",
+        "confirmed",
+        "completed",
+        "cancelled",
+        "no-show",
+      ],
+      default: "scheduled",
+    },
+
+    cancellation: {
+      reason: { type: String, trim: true },
+      cancelledBy: {
+        type: String,
+        enum: ["patient", "doctor", "admin"],
+      },
+      cancelledAt: Date,
     },
 
     notes: {
-      type: String,
-      trim: true,
-    },
-
-    cancellationReason: {
       type: String,
       trim: true,
     },
@@ -65,22 +80,31 @@ const appointmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Prevent double booking
+/////////////////////////////////////////////////////
+// 🔒 Prevent Double Booking
+/////////////////////////////////////////////////////
+
 appointmentSchema.index(
-  { doctorId: 1, appointmentDate: 1 },
+  { doctorId: 1, appointmentDateTime: 1 },
   { unique: true }
 );
 
-// Auto-generate readable date/time
+/////////////////////////////////////////////////////
+// 🧠 Middleware Logic
+/////////////////////////////////////////////////////
+
 appointmentSchema.pre("save", function () {
-  const date = new Date(this.appointmentDate);
+  // Normalize seconds and milliseconds
+  this.appointmentDateTime.setSeconds(0, 0);
 
-  this.readableDate = date.toISOString().split("T")[0];
-
-  this.readableTime = date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  // Auto update payment status
+  if (this.paidAmount === 0) {
+    this.paymentStatus = "pending";
+  } else if (this.paidAmount < this.consultationFee) {
+    this.paymentStatus = "partial";
+  } else if (this.paidAmount >= this.consultationFee) {
+    this.paymentStatus = "paid";
+  }
 
   // next();
 });

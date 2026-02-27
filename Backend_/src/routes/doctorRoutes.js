@@ -5,6 +5,7 @@ import {
   doctorDeactivate,
   getAllDoctors,
   getDoctorById,
+  getDoctorDashboard,
   getMyDoctorProfile,
   getPendingDoctors,
   suspendDoctor,
@@ -34,5 +35,8 @@ doctorRoutes.put("/approve/:id", authMiddleware, allowRoles("admin"), approveDoc
 doctorRoutes.put("/suspend/:id", authMiddleware, allowRoles("admin"), suspendDoctor);
 
 doctorRoutes.get("/pending", authMiddleware, allowRoles("admin"), getPendingDoctors);
+
+doctorRoutes.get("/dashboard", authMiddleware, allowRoles("doctor"), getDoctorDashboard);
+
 
 export default doctorRoutes;
