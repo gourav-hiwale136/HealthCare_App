@@ -3,8 +3,8 @@ import Patient from "../models/patientModel.js";
 
 const roleFields = {
   patient: ["name", "age", "phone", "emergencyContact"],
-  doctor: ["allergies", "medicalHistory", "treatmentNotes"],
-  admin: ["name", "phone", "emergencyContact", "bloodGroup"]
+  doctor: ["allergies", "medicalHistory", "bloodGroup","treatmentNotes"],
+  admin: ["name", "emergencyContact"]
 };
 
 
@@ -14,10 +14,10 @@ const createPatientProfile = async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { name, age, gender, bloodGroup, allergies = [], medicalHistory = [], treatmentNotes = {}, emergencyContact = {} } = req.body;
+    const { name, age, phone, gender, bloodGroup, allergies = [], medicalHistory = [], treatmentNotes = {}, emergencyContact = {} } = req.body;
 
-    if (!name || !age || !gender || !bloodGroup) {
-      return res.status(400).json({ error: "Name, age, gender, and blood group are required" });
+    if (!name || !age || !phone || !gender || !bloodGroup) {
+      return res.status(400).json({ error: "Name, age, phone, gender, and blood group are required" });
     }
 
     if (!["Male", "Female", "Other"].includes(gender)) {
@@ -33,6 +33,7 @@ const createPatientProfile = async (req, res) => {
       userId: req.user._id,
       name,
       age,
+      phone,
       gender,
       bloodGroup,
       allergies,

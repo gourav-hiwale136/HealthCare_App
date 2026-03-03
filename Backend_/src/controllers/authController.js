@@ -63,7 +63,6 @@ const updateCredentials = async (req, res) => {
     if (username) user.username = username;
 
     if (email) {
-      // Check if new email is already taken by another user
       const emailExists = await User.findOne({ email });
       if (emailExists && emailExists._id.toString() !== userId) {
         return res.status(400).json({ success: false, message: "Email already in use" });

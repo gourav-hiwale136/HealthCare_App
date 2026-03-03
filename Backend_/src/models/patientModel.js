@@ -7,6 +7,10 @@ const patientSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    phone:{
+      type: Number,
+      required:true,
+    },
     name: {
       type: String,
       required: true,
