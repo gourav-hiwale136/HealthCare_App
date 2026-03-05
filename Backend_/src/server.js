@@ -2,10 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/DB.js";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes.js";
-import patientRoutes from "./routes/patientRoutes.js";
-import doctorRoutes from "./routes/doctorRoutes.js";
-import appointmentRouter from "./routes/appointmentRoutes.js";
+import authRouter from "./routes/authRoutes.js";
+import patientRouter from "./routes/patientRoutes.js";
+import doctorRouter from "./routes/doctorRoutes.js";
+// import appointmentRouter from "./routes/appointmentRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -15,10 +15,10 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-app.use("/api/auth", authRoutes);
-app.use("/api/patients", patientRoutes);
-app.use("/api/doctors", doctorRoutes);
-app.use("/api/appointments", appointmentRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/patients", patientRouter);
+app.use("/api/doctors", doctorRouter);
+// app.use("/api/appointments", appointmentRouter);
 
 
 app.listen(PORT, () => {

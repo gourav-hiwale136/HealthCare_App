@@ -61,11 +61,6 @@ const doctorSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Indexes
-doctorSchema.index({ specialization: 1 });
-// doctorSchema.index({ userId: 1 }, { unique: true });
-doctorSchema.index({ status: 1 });
-doctorSchema.index({ isActive: 1 });
 
 const Doctor = mongoose.model("Doctor", doctorSchema);
 

@@ -29,8 +29,6 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// One patient can review a doctor only once
-reviewSchema.index({ doctorId: 1, patientId: 1 }, { unique: true });
 
 const Review = mongoose.model("Review", reviewSchema);
 

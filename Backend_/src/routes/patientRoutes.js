@@ -1,21 +1,22 @@
 import express from "express";
-import { addMedicalRecord, createPatientProfile, deletePatientProfile, getAllPatients, getMyPatientProfile, getPatientById, updateMyPatientProfile, updatePatientProfile } from "../controllers/patientController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
-import allowRoles from "../middleware/allowRoles.js";
+import { createPatient, deletePatient, getPatientProfile, getPatients, updatePatient } from "../controllers/patientController.js";
+import { allowRoles, authMiddleware } from "../middleware/authMiddleware.js";
 
 
 
-const patientRoutes = express.Router();
-
-patientRoutes.post("/patient", authMiddleware, allowRoles("patient"), createPatientProfile);
-patientRoutes.get("/patients", authMiddleware, allowRoles("admin"), getAllPatients);
-patientRoutes.get("/patient/:id", authMiddleware, allowRoles("admin", "doctor"), getPatientById);
-patientRoutes.get("/my-profile", authMiddleware, allowRoles("patient"), getMyPatientProfile);
-patientRoutes.put("/my-profile/update", authMiddleware, allowRoles("patient"), updateMyPatientProfile);
-patientRoutes.put("/updateProfile/:id", authMiddleware, allowRoles("admin", "doctor"), updatePatientProfile);
-patientRoutes.delete("/delete/:id", authMiddleware, allowRoles("admin"), deletePatientProfile);
-patientRoutes.post("/medical-record/:id", authMiddleware, allowRoles("admin", "doctor"), addMedicalRecord);
+const patientRouter = express.Router();
 
 
+patientRouter.post("/patient", authMiddleware, allowRoles("patient"), createPatient);
 
-export default patientRoutes;
+patientRouter.get("/profile", authMiddleware, allowRoles("patient"), getPatientProfile);
+
+patientRouter.put("/update-profile", authMiddleware, allowRoles("patient"), updatePatient);
+
+patientRouter.delete("/delete", authMiddleware, allowRoles("patient"), deletePatient);
+
+patientRouter.get("/getAll", authMiddleware, allowRoles("patient", "admin"), getPatients);
+
+
+
+export default patientRouter;

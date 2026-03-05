@@ -1,15 +1,21 @@
 import express from "express";
-import { loginUser, registerUser, updateCredentials } from "../controllers/authController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import {
+  loginUser,
+  registerUser,
+  updateCredentials,
+  getProfile
+} from "../controllers/authController.js";
 
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
+const authRouter = express.Router();
 
-const authRoutes = express.Router();
+authRouter.post("/register", registerUser);
 
-authRoutes.post("/register", registerUser);
+authRouter.post("/login", loginUser);
 
-authRoutes.post("/login", loginUser);
+authRouter.get("/profile", authMiddleware, getProfile);
 
-authRoutes.put("/updateCredentials", authMiddleware, updateCredentials);
+authRouter.put("/update-credentials", authMiddleware, updateCredentials);
 
-export default authRoutes;
+export default authRouter;
