@@ -5,7 +5,8 @@ import cors from "cors";
 import authRouter from "./routes/authRoutes.js";
 import patientRouter from "./routes/patientRoutes.js";
 import doctorRouter from "./routes/doctorRoutes.js";
-// import appointmentRouter from "./routes/appointmentRoutes.js";
+import appointmentRouter from "./routes/appointmentRoutes.js";
+import paymentRouter from "./routes/paymentRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -18,7 +19,8 @@ const PORT = process.env.PORT || 3000;
 app.use("/api/auth", authRouter);
 app.use("/api/patients", patientRouter);
 app.use("/api/doctors", doctorRouter);
-// app.use("/api/appointments", appointmentRouter);
+app.use("/api/appointments", appointmentRouter);
+app.use("/api/payments", paymentRouter)
 
 
 app.listen(PORT, () => {

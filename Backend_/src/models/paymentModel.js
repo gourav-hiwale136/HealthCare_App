@@ -1,4 +1,3 @@
-// models/paymentModel.js
 import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
@@ -41,15 +40,13 @@ const paymentSchema = new mongoose.Schema(
     },
 
     gatewayResponse: {
-      type: Object, // store raw payment gateway response
-    },
-
-    refundReason: {
-      type: String,
-      trim: true,
+      type: Object, // raw response from payment gateway
+      default: {},
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const Payment = mongoose.model("Payment", paymentSchema);
