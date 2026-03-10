@@ -13,7 +13,7 @@ patientRouter.get("/profile", authMiddleware, allowRoles("patient"), getPatientP
 
 patientRouter.put("/update-profile", authMiddleware, allowRoles("patient"), updatePatient);
 
-patientRouter.delete("/delete", authMiddleware, allowRoles("patient"), deletePatient);
+patientRouter.delete("/delete/:id", authMiddleware, allowRoles("patient", "admin"), deletePatient);
 
 patientRouter.get("/getAll", authMiddleware, allowRoles("patient", "admin"), getPatients);
 

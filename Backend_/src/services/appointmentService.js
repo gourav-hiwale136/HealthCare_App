@@ -41,7 +41,7 @@ export const updateAppointmentStatusService = async (appointmentId, status) => {
   const appointment = await Appointment.findByIdAndUpdate(
     appointmentId,
     { status },
-    { new: true }
+    { returnDocument: "after" }
   );
 
   return appointment;

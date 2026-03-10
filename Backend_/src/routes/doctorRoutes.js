@@ -13,11 +13,11 @@ import { allowRoles, authMiddleware } from "../middleware/authMiddleware.js";
 const doctorRouter = express.Router();
 
 
-doctorRouter.post("/apply", authMiddleware, createDoctor);
+doctorRouter.post("/apply", authMiddleware, allowRoles("doctor"), createDoctor);
 
-doctorRouter.get("/profile", authMiddleware, getDoctorProfile);
+doctorRouter.get("/profile", authMiddleware, allowRoles("doctor"), getDoctorProfile);
 
-doctorRouter.put("/update-profile", authMiddleware, updateDoctor);
+doctorRouter.put("/update-profile", authMiddleware, allowRoles("doctor"), updateDoctor);
 
 doctorRouter.get("/getDoc", authMiddleware, allowRoles("admin"), getDoctors);
 
